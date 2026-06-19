@@ -1,0 +1,236 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --line-height-tight: 1.3;
+  --line-height-snug: 1.4;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.7;
+  --letter-spacing-tight: -0.015em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+  --background: #F7F2E8;
+  --foreground: #271409;
+  --card: #FDFAF3;
+  --card-foreground: #271409;
+  --popover: #FDFAF3;
+  --popover-foreground: #271409;
+  --primary: #BF5730;
+  --primary-foreground: #FDFAF3;
+  --secondary: #5D6E40;
+  --secondary-foreground: #FDFAF3;
+  --muted: #E6DECE;
+  --muted-foreground: #7C6450;
+  --accent: #C49838;
+  --accent-foreground: #271409;
+  --destructive: #C0392B;
+  --destructive-foreground: #FDFAF3;
+  --border: rgba(39, 20, 9, 0.11);
+  --input: transparent;
+  --input-background: #EDE5D8;
+  --switch-background: #C8BEAF;
+  --ring: #BF5730;
+  --chart-1: #BF5730;
+  --chart-2: #5D6E40;
+  --chart-3: #C49838;
+  --chart-4: #8B5E3C;
+  --chart-5: #A3866E;
+  --radius: 0.5rem;
+  --sidebar: #1C0D06;
+  --sidebar-foreground: #F0E7DA;
+  --sidebar-primary: #BF5730;
+  --sidebar-primary-foreground: #F0E7DA;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #F0E7DA;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+  --sidebar-ring: #C49838;
+}
+
+.dark {
+  --background: #1A0C06;
+  --foreground: #F0E7DA;
+  --card: #241208;
+  --card-foreground: #F0E7DA;
+  --popover: #241208;
+  --popover-foreground: #F0E7DA;
+  --primary: #D4693E;
+  --primary-foreground: #F0E7DA;
+  --secondary: #4A5933;
+  --secondary-foreground: #F0E7DA;
+  --muted: #2E1A0F;
+  --muted-foreground: #A08870;
+  --accent: #C49838;
+  --accent-foreground: #F0E7DA;
+  --destructive: #C0392B;
+  --destructive-foreground: #F0E7DA;
+  --border: rgba(240, 231, 218, 0.1);
+  --input: rgba(240, 231, 218, 0.07);
+  --input-background: rgba(240, 231, 218, 0.07);
+  --switch-background: #4A3828;
+  --ring: #D4693E;
+  --chart-1: #D4693E;
+  --chart-2: #7A9254;
+  --chart-3: #C49838;
+  --chart-4: #A07050;
+  --chart-5: #C8A882;
+  --sidebar: #120800;
+  --sidebar-foreground: #F0E7DA;
+  --sidebar-primary: #D4693E;
+  --sidebar-primary-foreground: #F0E7DA;
+  --sidebar-accent: rgba(255, 255, 255, 0.05);
+  --sidebar-accent-foreground: #F0E7DA;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #C49838;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    line-height: var(--line-height-snug);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    line-height: var(--line-height-snug);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  h4 {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 500;
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  label {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-wide);
+    text-transform: uppercase;
+  }
+
+  button {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  input, select, textarea {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  table {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-feature-settings: 'tnum' 1, 'kern' 1;
+  }
+
+  th {
+    font-weight: 500;
+  }
+
+  strong, b {
+    font-weight: 700;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(39, 20, 9, 0.15);
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  :hover::-webkit-scrollbar-thumb { opacity: 1; }
+}
+
+@layer utilities {
+  .font-light { font-weight: 300; }
+  .font-regular { font-weight: 400; }
+  .font-medium { font-weight: 500; }
+  .font-semibold { font-weight: 600; }
+  .font-bold { font-weight: 700; }
+
+  .tracking-tighter { letter-spacing: var(--letter-spacing-tight); }
+  .tracking-tight { letter-spacing: -0.01em; }
+  .tracking-normal { letter-spacing: var(--letter-spacing-normal); }
+  .tracking-wide { letter-spacing: var(--letter-spacing-wide); }
+}
