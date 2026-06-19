@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
 } from "recharts";
@@ -8,12 +8,12 @@ import {
   X, Moon, Sun, LogOut, ArrowLeft, ChevronDown,
   CheckCircle2, Clock, AlertCircle, Archive, MapPin, Users2,
   Eye, Edit3, MoreHorizontal, TrendingUp, Sparkles, Menu, Check,
-  BellRing, XCircle, CreditCard, Ban
+  BellRing, XCircle, CreditCard, Ban, CalendarDays
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Page = "login" | "dashboard" | "new-contract" | "contracts" | "contract-detail" | "villas" | "clients" | "client-detail" | "settings";
+type Page = "login" | "dashboard" | "bookings" | "booking-detail" | "new-contract" | "contracts" | "contract-detail" | "settings";
 type ContractStatus = "Bozza" | "Inviato" | "Firmato" | "Archiviato" | "Annullata";
 type Language = "it" | "en" | "de";
 type ClientStatus = "Nuovo Cliente" | "Cliente Abituale" | "VIP" | "Storico";
@@ -27,6 +27,29 @@ interface Villa {
   photo: string;
   status: "Available" | "Occupied" | "Maintenance";
   languages: Language[];
+}
+
+interface Booking {
+  id: string;
+  villaId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  passport: string;
+  codiceFiscale: string;
+  luogoNascita: string;
+  guests: string;
+  checkIn: string;
+  checkOut: string;
+  price: string;
+  deposit: string;
+  securityDeposit: string;
+  paymentMethod: string;
+  paymentDueDate: string;
+  extras: string;
+  notes: string;
 }
 
 interface ContractForm {
@@ -150,12 +173,72 @@ const CLIENTS: Client[] = [
   { id: "CL-010", name: "Giulia Rossi", nationality: "Italy", email: "g.rossi@email.it", phone: "+39 02 1234567", status: "VIP", preferredLanguage: "it", totalBookings: 6, lastBooking: "2025-05-07", lastVilla: "Villa Luisa", totalSpent: "€ 27.600", address: "Milano, Italia" },
 ];
 
-const EMPTY_FORM: ContractForm = {
-  villaId: "", language: "it", secondaryLanguage: null,
-  firstName: "", lastName: "", email: "", phone: "", address: "", passport: "", codiceFiscale: "", luogoNascita: "", guests: "2",
-  checkIn: "", checkOut: "", price: "", deposit: "", securityDeposit: "",
-  paymentMethod: "Bonifico bancario", paymentDueDate: "", extras: "", notes: "",
-};
+const BOOKINGS: Booking[] = [
+  {
+    id: "BK-2025-001",
+    villaId: "1",
+    firstName: "James", lastName: "Whitmore",
+    email: "j.whitmore@email.com", phone: "+44 20 7123 4567",
+    address: "45 Kensington Gardens, London W2 4BB, UK",
+    passport: "GB12345678", codiceFiscale: "", luogoNascita: "London (UK)",
+    guests: "10", checkIn: "2025-07-12", checkOut: "2025-07-26",
+    price: "8400", deposit: "2520", securityDeposit: "900",
+    paymentMethod: "Bonifico bancario", paymentDueDate: "2025-06-12",
+    extras: "Servizio chef, Degustazione vini",
+    notes: "Arriving late evening, airport transfer needed.",
+  },
+  {
+    id: "BK-2025-002",
+    villaId: "3",
+    firstName: "Brigitte", lastName: "Müller",
+    email: "b.mueller@email.de", phone: "+49 89 1234567",
+    address: "Maximilianstraße 12, 80539 München, Germany",
+    passport: "DE98765432", codiceFiscale: "", luogoNascita: "München (DE)",
+    guests: "8", checkIn: "2025-08-02", checkOut: "2025-08-16",
+    price: "5200", deposit: "1560", securityDeposit: "900",
+    paymentMethod: "Bonifico bancario", paymentDueDate: "2025-07-02",
+    extras: "Pulizie giornaliere",
+    notes: "Anniversario di matrimonio — richieste decorazioni floreali.",
+  },
+  {
+    id: "BK-2025-003",
+    villaId: "4",
+    firstName: "Marco", lastName: "Ferretti",
+    email: "m.ferretti@email.it", phone: "+39 02 1234567",
+    address: "Via Montenapoleone 8, 20121 Milano, Italia",
+    passport: "IT456789A", codiceFiscale: "FRRMRC80A01F205A", luogoNascita: "Milano (MI)",
+    guests: "6", checkIn: "2025-07-20", checkOut: "2025-07-27",
+    price: "4200", deposit: "1260", securityDeposit: "500",
+    paymentMethod: "Bonifico bancario", paymentDueDate: "2025-06-20",
+    extras: "", notes: "",
+  },
+  {
+    id: "BK-2025-004",
+    villaId: "5",
+    firstName: "Sarah", lastName: "Thornton",
+    email: "s.thornton@email.com", phone: "+1 212 555 0147",
+    address: "220 Central Park South, New York, NY 10019, USA",
+    passport: "US78901234", codiceFiscale: "", luogoNascita: "New York (USA)",
+    guests: "12", checkIn: "2025-08-23", checkOut: "2025-09-06",
+    price: "11200", deposit: "3360", securityDeposit: "900",
+    paymentMethod: "Carta di credito", paymentDueDate: "2025-07-23",
+    extras: "Jacuzzi privata, Transfer aeroporto, Noleggio biciclette",
+    notes: "Celebrazione compleanno — richieste candele e champagne all'arrivo.",
+  },
+  {
+    id: "BK-2025-005",
+    villaId: "7",
+    firstName: "Anna", lastName: "Schneider",
+    email: "anna.schneider@email.ch", phone: "+41 44 123 4567",
+    address: "Bahnhofstrasse 45, 8001 Zürich, Switzerland",
+    passport: "CH11223344", codiceFiscale: "", luogoNascita: "Zürich (CH)",
+    guests: "4", checkIn: "2025-09-06", checkOut: "2025-09-13",
+    price: "3200", deposit: "960", securityDeposit: "500",
+    paymentMethod: "Bonifico bancario", paymentDueDate: "2025-08-06",
+    extras: "Degustazione vini",
+    notes: "Preferenza piano superiore.",
+  },
+];
 
 function fmtDate(iso: string): string {
   if (!iso) return "—";
@@ -274,8 +357,7 @@ function villaPhoto(id: string, w = 600, h = 400) {
 
 const NAV_ITEMS: { id: Page; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
-  { id: "new-contract", label: "Nuovo Contratto", icon: <FilePlus size={16} /> },
-  { id: "villas", label: "Ville", icon: <Building2 size={16} /> },
+  { id: "bookings", label: "Prenotazioni", icon: <CalendarDays size={16} /> },
   { id: "contracts", label: "Contratti", icon: <FileText size={16} /> },
 ];
 
@@ -303,7 +385,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
       {/* Nav */}
       <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
         {NAV_ITEMS.map(item => {
-          const active = page === item.id;
+          const active = page === item.id || (item.id === "bookings" && (page === "new-contract" || page === "booking-detail"));
           return (
             <button
               key={item.id}
@@ -321,17 +403,6 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
         })}
 
         <div className="pt-4 mt-4 border-t border-sidebar-border">
-          <button
-            onClick={() => onNav("clients")}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-150 text-left
-              ${page === "clients" || page === "client-detail"
-                ? "bg-primary/20 text-primary border border-primary/25"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              }`}
-          >
-            <Users size={16} className="flex-shrink-0" />
-            {!collapsed && <span>Clienti</span>}
-          </button>
           <button
             onClick={() => onNav("settings")}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-150 text-left
@@ -481,8 +552,8 @@ function DashboardPage({ onNewContract, onViewContract }: {
           </h2>
         </div>
         <Btn onClick={onNewContract} variant="primary">
-          <FilePlus size={15} />
-          Nuovo Contratto
+          <CalendarDays size={15} />
+          Prenotazioni
         </Btn>
       </div>
 
@@ -604,74 +675,127 @@ function DashboardPage({ onNewContract, onViewContract }: {
   );
 }
 
-// ─── New Contract Wizard ──────────────────────────────────────────────────────
+// ─── Bookings List ────────────────────────────────────────────────────────────
 
-const STEPS = ["Villa", "Lingua", "Cliente", "Prenotazione", "Contratto"];
+function BookingsPage({ onPreview, onGenerateContract }: {
+  onPreview: (b: Booking) => void;
+  onGenerateContract: (b: Booking) => void;
+}) {
+  const [search, setSearch] = useState("");
 
-function WizardProgress({ step }: { step: number }) {
+  const filtered = BOOKINGS.filter(b => {
+    const villa = VILLAS.find(v => v.id === b.villaId);
+    const s = search.toLowerCase();
+    return (
+      `${b.firstName} ${b.lastName}`.toLowerCase().includes(s) ||
+      (villa?.name.toLowerCase().includes(s) ?? false) ||
+      b.email.toLowerCase().includes(s)
+    );
+  });
+
   return (
-    <div className="flex items-center gap-0 mb-8">
-      {STEPS.map((label, i) => (
-        <div key={label} className="flex items-center flex-1 last:flex-none">
-          <div className="flex flex-col items-center gap-1.5">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-medium transition-all duration-300
-              ${i < step ? "bg-primary text-primary-foreground" :
-                i === step ? "bg-primary text-primary-foreground ring-4 ring-primary/20" :
-                  "bg-muted text-muted-foreground"}`}>
-              {i < step ? <Check size={14} /> : i + 1}
-            </div>
-            <span className={`text-[10px] font-mono uppercase tracking-wide hidden sm:block whitespace-nowrap
-              ${i === step ? "text-primary font-medium" : "text-muted-foreground"}`}>
-              {label}
-            </span>
-          </div>
-          {i < STEPS.length - 1 && (
-            <div className={`flex-1 h-px mx-2 mb-5 transition-colors duration-300 ${i < step ? "bg-primary" : "bg-border"}`} />
-          )}
+    <div className="p-6 max-w-5xl">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Sistema Esterno</p>
+          <h1 className="text-xl font-display font-semibold text-foreground">Prenotazioni</h1>
         </div>
-      ))}
-    </div>
-  );
-}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Cerca ospite o villa..."
+              className="pl-8 pr-4 py-2 bg-input-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring/30 w-56"
+            />
+          </div>
+          <span className="text-xs font-mono text-muted-foreground bg-muted px-3 py-1.5 rounded-full whitespace-nowrap">
+            {filtered.length} prenotazioni
+          </span>
+        </div>
+      </div>
 
-function Step1Villa({ form, onChange }: { form: ContractForm; onChange: (f: Partial<ContractForm>) => void }) {
-  return (
-    <div>
-      <h2 className="text-xl font-display font-semibold text-foreground mb-1">Seleziona la Villa</h2>
-      <p className="text-sm text-muted-foreground mb-6">Scegli la villa per cui generare il contratto di locazione.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {VILLAS.map(v => {
-          const sel = form.villaId === v.id;
+      {/* Summary row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-lg p-4">
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Totale</p>
+          <p className="text-2xl font-display font-semibold text-foreground">{BOOKINGS.length}</p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Questo mese</p>
+          <p className="text-2xl font-display font-semibold text-foreground">
+            {BOOKINGS.filter(b => b.checkIn.startsWith("2025-07") || b.checkIn.startsWith("2025-08")).length}
+          </p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Ospiti totali</p>
+          <p className="text-2xl font-display font-semibold text-foreground">
+            {BOOKINGS.reduce((sum, b) => sum + Number(b.guests), 0)}
+          </p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Valore totale</p>
+          <p className="text-xl font-display font-semibold text-foreground">
+            € {BOOKINGS.reduce((sum, b) => sum + Number(b.price), 0).toLocaleString("it-IT")}
+          </p>
+        </div>
+      </div>
+
+      {/* Booking cards */}
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <div className="bg-card border border-border rounded-xl p-10 text-center text-muted-foreground text-sm">
+            Nessuna prenotazione trovata
+          </div>
+        ) : filtered.map(b => {
+          const villa = VILLAS.find(v => v.id === b.villaId);
+          const nights = villa
+            ? Math.round((new Date(b.checkOut).getTime() - new Date(b.checkIn).getTime()) / 86400000)
+            : 0;
           return (
-            <div key={v.id}
-              onClick={() => v.status !== "Maintenance" && onChange({ villaId: v.id })}
-              className={`relative rounded-lg border-2 overflow-hidden cursor-pointer transition-all duration-200 group
-                ${v.status === "Maintenance" ? "opacity-50 cursor-not-allowed" : ""}
-                ${sel ? "border-primary shadow-md shadow-primary/10" : "border-border hover:border-primary/40"}`}>
-              {/* Image */}
-              <div className="relative h-36 bg-muted overflow-hidden">
-                <img
-                  src={villaPhoto(v.photo, 400, 280)}
-                  alt={v.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <div className="absolute top-2 right-2">
-                  <StatusBadge status={v.status} />
+            <div key={b.id} className="bg-card border border-border rounded-xl p-5 flex items-center gap-5 hover:shadow-md transition-shadow">
+              {/* Villa thumbnail */}
+              {villa && (
+                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 hidden sm:block">
+                  <img src={villaPhoto(villa.photo, 128, 128)} alt={villa.name} className="w-full h-full object-cover" />
                 </div>
-                {sel && (
-                  <div className="absolute top-2 left-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <Check size={12} className="text-primary-foreground" />
-                  </div>
-                )}
+              )}
+
+              {/* Info grid */}
+              <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">Ospite</p>
+                  <p className="font-display font-semibold text-foreground text-sm truncate">{b.firstName} {b.lastName}</p>
+                  <p className="text-xs text-muted-foreground font-mono truncate">{b.email}</p>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">Villa</p>
+                  <p className="font-medium text-foreground text-sm truncate">{villa?.name ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1"><Users2 size={9} />{b.guests} ospiti</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">Periodo</p>
+                  <p className="font-medium text-foreground text-sm">{fmtDate(b.checkIn)}</p>
+                  <p className="text-xs text-muted-foreground">→ {fmtDate(b.checkOut)} <span className="font-mono">({nights}n)</span></p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">Importo</p>
+                  <p className="font-mono font-semibold text-foreground text-sm">€ {Number(b.price).toLocaleString("it-IT")}</p>
+                  <p className="text-xs text-muted-foreground">dep. € {Number(b.deposit).toLocaleString("it-IT")}</p>
+                </div>
               </div>
-              {/* Info */}
-              <div className="p-3 bg-card">
-                <p className="font-display font-semibold text-sm text-foreground">{v.name}</p>
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><MapPin size={10} />{v.location.split(",")[0]}</span>
-                  <span className="flex items-center gap-1"><Users2 size={10} />{v.guests} ospiti</span>
-                </div>
+
+              {/* CTA */}
+              <div className="flex-shrink-0 flex flex-col gap-2">
+                <Btn onClick={() => onPreview(b)} variant="outline" size="sm">
+                  <Eye size={13} />
+                  Anteprima
+                </Btn>
+                <Btn onClick={() => onGenerateContract(b)} variant="primary" size="sm">
+                  <FilePlus size={13} />
+                  Genera Contratto
+                </Btn>
               </div>
             </div>
           );
@@ -680,6 +804,184 @@ function Step1Villa({ form, onChange }: { form: ContractForm; onChange: (f: Part
     </div>
   );
 }
+
+// ─── Booking Detail ───────────────────────────────────────────────────────────
+
+function BookingDetailPage({ booking, onBack, onGenerateContract }: {
+  booking: Booking;
+  onBack: () => void;
+  onGenerateContract: (b: Booking) => void;
+}) {
+  const villa = VILLAS.find(v => v.id === booking.villaId);
+  const nights = Math.round(
+    (new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / 86400000
+  );
+
+  function Field({ label, value }: { label: string; value: string }) {
+    return (
+      <div>
+        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">{label}</p>
+        <p className="text-sm font-medium text-foreground">{value || "—"}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-5xl">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={onBack} className="p-2 rounded-md text-muted-foreground hover:bg-muted transition-colors">
+          <ArrowLeft size={16} />
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">{booking.id}</p>
+          <h1 className="text-xl font-display font-semibold text-foreground truncate">
+            {booking.firstName} {booking.lastName}
+          </h1>
+        </div>
+        <Btn onClick={() => onGenerateContract(booking)} variant="primary" size="sm">
+          <FilePlus size={13} />
+          Genera Contratto
+        </Btn>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* Left / main column */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* Guest */}
+          <div className="bg-card border border-border rounded-lg p-5">
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Dati Ospite</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Nome" value={booking.firstName} />
+              <Field label="Cognome" value={booking.lastName} />
+              <Field label="Email" value={booking.email} />
+              <Field label="Telefono" value={booking.phone} />
+              <div className="sm:col-span-2">
+                <Field label="Indirizzo" value={booking.address} />
+              </div>
+              <Field label="Passaporto / Documento" value={booking.passport} />
+              <Field label="Codice Fiscale" value={booking.codiceFiscale} />
+              <Field label="Luogo di Nascita" value={booking.luogoNascita} />
+              <Field label="Numero Ospiti" value={`${booking.guests} persone`} />
+            </div>
+          </div>
+
+          {/* Period */}
+          <div className="bg-card border border-border rounded-lg p-5">
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Periodo di Soggiorno</p>
+            <div className="grid grid-cols-3 gap-4">
+              <Field label="Check-in" value={fmtDate(booking.checkIn)} />
+              <Field label="Check-out" value={fmtDate(booking.checkOut)} />
+              <Field label="Durata" value={`${nights} notti`} />
+            </div>
+          </div>
+
+          {/* Financials */}
+          <div className="bg-card border border-border rounded-lg p-5">
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Condizioni Economiche</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <Field label="Prezzo Affitto" value={`€ ${Number(booking.price).toLocaleString("it-IT")}`} />
+              <Field label="Deposito a Garanzia" value={`€ ${Number(booking.deposit).toLocaleString("it-IT")}`} />
+              <Field
+                label="Deposito Cauzionale"
+                value={booking.securityDeposit ? `€ ${Number(booking.securityDeposit).toLocaleString("it-IT")}` : "—"}
+              />
+              <Field label="Metodo Pagamento" value={booking.paymentMethod} />
+              <Field label="Scadenza Pagamento" value={fmtDate(booking.paymentDueDate)} />
+            </div>
+          </div>
+
+          {/* Extras & Notes */}
+          {(booking.extras || booking.notes) && (
+            <div className="bg-card border border-border rounded-lg p-5 space-y-4">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Extra & Note</p>
+              {booking.extras && (
+                <div>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Servizi Aggiuntivi</p>
+                  <div className="flex flex-wrap gap-2">
+                    {booking.extras.split(",").map(e => e.trim()).filter(Boolean).map(ex => (
+                      <span key={ex} className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-medium">
+                        {ex}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {booking.notes && (
+                <div>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Note</p>
+                  <p className="text-sm text-foreground leading-relaxed bg-muted/40 rounded-lg px-4 py-3">{booking.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right / sidebar */}
+        <div className="space-y-5">
+
+          {/* Villa card */}
+          {villa && (
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="h-36 overflow-hidden">
+                <img src={villaPhoto(villa.photo, 500, 280)} alt={villa.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-4 space-y-2">
+                <p className="font-display font-semibold text-foreground">{villa.name}</p>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p className="flex items-center gap-1.5"><MapPin size={11} />{villa.location}</p>
+                  <p className="flex items-center gap-1.5"><Users2 size={11} />Fino a {villa.guests} ospiti · {villa.bedrooms} camere</p>
+                </div>
+                <div className="flex items-center gap-1.5 pt-1">
+                  {villa.languages.map(l => (
+                    <span key={l} className="text-base" title={LANG_LABELS[l]}>{LANG_FLAGS[l]}</span>
+                  ))}
+                  <span className="text-[10px] text-muted-foreground font-mono ml-1">Lingue contratto</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Summary box */}
+          <div className="bg-card border border-border rounded-lg p-5">
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Riepilogo</p>
+            <div className="space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Soggiorno</span>
+                <span className="font-mono font-medium text-foreground">{nights} notti</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Ospiti</span>
+                <span className="font-mono font-medium text-foreground">{booking.guests}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Dep. garanzia</span>
+                <span className="font-mono font-medium text-foreground">€ {Number(booking.deposit).toLocaleString("it-IT")}</span>
+              </div>
+              {booking.securityDeposit && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Dep. cauzionale</span>
+                  <span className="font-mono font-medium text-foreground">€ {Number(booking.securityDeposit).toLocaleString("it-IT")}</span>
+                </div>
+              )}
+              <div className="border-t border-border pt-2.5 flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Totale affitto</span>
+                <span className="font-mono font-semibold text-foreground text-base">
+                  € {Number(booking.price).toLocaleString("it-IT")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Language & Contract Steps ────────────────────────────────────────────────
 
 function Step2Language({ form, onChange }: { form: ContractForm; onChange: (f: Partial<ContractForm>) => void }) {
   const secondaryLangs: { code: Language; label: string; flag: string; desc: string }[] = [
@@ -756,82 +1058,6 @@ function Step2Language({ form, onChange }: { form: ContractForm; onChange: (f: P
   );
 }
 
-function Step3Customer({ form, onChange }: { form: ContractForm; onChange: (f: Partial<ContractForm>) => void }) {
-  return (
-    <div className="max-w-2xl">
-      <h2 className="text-xl font-display font-semibold text-foreground mb-1">Dati del Cliente</h2>
-      <p className="text-sm text-muted-foreground mb-6">Inserisci le informazioni personali del conduttore del contratto.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField label="Nome" value={form.firstName} onChange={v => onChange({ firstName: v })} placeholder="Marco" required />
-        <FormField label="Cognome" value={form.lastName} onChange={v => onChange({ lastName: v })} placeholder="Rossi" required />
-        <FormField label="Email" type="email" value={form.email} onChange={v => onChange({ email: v })} placeholder="m.rossi@email.it" required />
-        <FormField label="Telefono" type="tel" value={form.phone} onChange={v => onChange({ phone: v })} placeholder="+39 333 123 4567" />
-        <div className="sm:col-span-2">
-          <FormField label="Indirizzo" value={form.address} onChange={v => onChange({ address: v })} placeholder="Via Roma 12, 20100 Milano" required />
-        </div>
-        <FormField label="Passaporto / Documento" value={form.passport} onChange={v => onChange({ passport: v })} placeholder="IT123456A" required />
-        <FormField label="Codice Fiscale" value={form.codiceFiscale} onChange={v => onChange({ codiceFiscale: v })} placeholder="RSSMRC80A01H501U" />
-        <FormField label="Luogo di Nascita" value={form.luogoNascita} onChange={v => onChange({ luogoNascita: v })} placeholder="Roma (RM)" />
-        <FormField label="Numero Ospiti" type="number" value={form.guests} onChange={v => onChange({ guests: v })} placeholder="4" required />
-      </div>
-    </div>
-  );
-}
-
-function Step4Booking({ form, onChange }: { form: ContractForm; onChange: (f: Partial<ContractForm>) => void }) {
-  const PAYMENT_METHODS = ["Bonifico bancario", "Carta di credito", "Assegno", "Contanti", "PayPal"];
-  const EXTRAS = ["Servizio chef", "Pulizie giornaliere", "Transfer aeroporto", "Noleggio biciclette", "Degustazione vini", "Jacuzzi privata"];
-  const selExtras = form.extras ? form.extras.split(",").map(e => e.trim()) : [];
-  const toggleExtra = (ex: string) => {
-    const set = new Set(selExtras);
-    set.has(ex) ? set.delete(ex) : set.add(ex);
-    onChange({ extras: Array.from(set).join(", ") });
-  };
-  return (
-    <div className="max-w-2xl">
-      <h2 className="text-xl font-display font-semibold text-foreground mb-1">Dettagli Prenotazione</h2>
-      <p className="text-sm text-muted-foreground mb-6">Inserisci le date di soggiorno e le condizioni economiche.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField label="Check-in" type="date" value={form.checkIn} onChange={v => onChange({ checkIn: v })} required />
-        <FormField label="Check-out" type="date" value={form.checkOut} onChange={v => onChange({ checkOut: v })} required />
-        <FormField label="Prezzo Affitto (€)" type="number" value={form.price} onChange={v => onChange({ price: v })} placeholder="5.000" required />
-        <FormField label="Deposito a garanzia (€)" type="number" value={form.deposit} onChange={v => onChange({ deposit: v })} placeholder="1.500" required />
-        <FormField label="Deposito Cauzionale (€ 500 fino a 4 camere, € 900 per 5 camere o più)" type="number" value={form.securityDeposit} onChange={v => onChange({ securityDeposit: v })} placeholder="2.000" />
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Metodo Pagamento</label>
-          <select
-            value={form.paymentMethod}
-            onChange={e => onChange({ paymentMethod: e.target.value })}
-            className="w-full px-3 py-2.5 bg-input-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
-          >
-            {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
-          </select>
-        </div>
-        <FormField label="Data scadenza pagamento" type="date" value={form.paymentDueDate} onChange={v => onChange({ paymentDueDate: v })} />
-      </div>
-      <div className="mt-5">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2.5">Servizi Extra</p>
-        <div className="flex flex-wrap gap-2">
-          {EXTRAS.map(ex => {
-            const sel = selExtras.includes(ex);
-            return (
-              <button key={ex}
-                onClick={() => toggleExtra(ex)}
-                className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-150 ${sel
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}>
-                {ex}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <div className="mt-4">
-        <FormField label="Note Aggiuntive" value={form.notes} onChange={v => onChange({ notes: v })} as="textarea" placeholder="Note speciali per il soggiorno..." />
-      </div>
-    </div>
-  );
-}
 
 const LOREM_IT = `Il presente contratto di locazione turistica è stipulato tra il locatore, Tenuta Ricrio S.r.l., con sede legale in Guardistallo (PI), e il conduttore come indicato in intestazione. Il conduttore prende in locazione l'immobile per uso esclusivamente turistico, ai sensi dell'art. 53 del D.Lgs. n. 79/2011, per il periodo indicato. Il conduttore si impegna a utilizzare l'immobile con diligenza, a non sublocarlo e a riconsegnarlo nelle medesime condizioni in cui lo ha ricevuto. Il canone di locazione, il deposito cauzionale e la caparra confirmatoria sono stabiliti nelle condizioni economiche del presente contratto. In caso di danni all'immobile o agli arredi, il locatore è autorizzato a trattenere il deposito cauzionale. Il presente contratto è disciplinato dalla legge italiana.`;
 const LOREM_EN = `This short-term holiday rental agreement is entered into between the Landlord, Tenuta Ricrio S.r.l., registered in Guardistallo (PI), and the Tenant as detailed herein. The Tenant agrees to use the property solely for holiday/tourist purposes in accordance with applicable Italian law. The Tenant undertakes to treat the property with care, not to sublet it, and to return it in the same condition as received. The rental fee, security deposit, and advance payment are as specified in the financial conditions herein. In the event of damage to the property or furnishings, the Landlord reserves the right to retain the security deposit. This Agreement is governed by Italian law.`;
@@ -1075,21 +1301,40 @@ function Step5Preview({
   );
 }
 
-function NewContractPage({ onBack }: { onBack: () => void }) {
+// ─── Contract from Booking ────────────────────────────────────────────────────
+
+const BOOKING_STEPS = ["Lingua", "Contratto"];
+
+function ContractFromBookingPage({ booking, onBack }: { booking: Booking; onBack: () => void }) {
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState<ContractForm>(EMPTY_FORM);
+  const [secondaryLanguage, setSecondaryLanguage] = useState<Language | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const update = (f: Partial<ContractForm>) => setForm(prev => ({ ...prev, ...f }));
-  const canNext = [
-    form.villaId !== "",
-    true,
-    form.firstName && form.lastName && form.email,
-    form.checkIn && form.checkOut && form.price,
-    true,
-  ][step];
+  const villa = VILLAS.find(v => v.id === booking.villaId);
 
-  const handleSend = () => setShowSuccess(true);
+  const form: ContractForm = {
+    villaId: booking.villaId,
+    language: "it",
+    secondaryLanguage,
+    firstName: booking.firstName,
+    lastName: booking.lastName,
+    email: booking.email,
+    phone: booking.phone,
+    address: booking.address,
+    passport: booking.passport,
+    codiceFiscale: booking.codiceFiscale,
+    luogoNascita: booking.luogoNascita,
+    guests: booking.guests,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    price: booking.price,
+    deposit: booking.deposit,
+    securityDeposit: booking.securityDeposit,
+    paymentMethod: booking.paymentMethod,
+    paymentDueDate: booking.paymentDueDate,
+    extras: booking.extras,
+    notes: booking.notes,
+  };
 
   return (
     <div className="p-6 max-w-5xl">
@@ -1099,38 +1344,63 @@ function NewContractPage({ onBack }: { onBack: () => void }) {
           <ArrowLeft size={16} />
         </button>
         <div>
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Gestione Contratti</p>
-          <h1 className="text-xl font-display font-semibold text-foreground">Nuovo Contratto</h1>
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
+            {booking.firstName} {booking.lastName} · {villa?.name ?? "—"}
+          </p>
+          <h1 className="text-xl font-display font-semibold text-foreground">Genera Contratto</h1>
         </div>
       </div>
 
-      <WizardProgress step={step} />
+      {/* Progress */}
+      <div className="flex items-center gap-0 mb-8">
+        {BOOKING_STEPS.map((label, i) => (
+          <div key={label} className="flex items-center flex-1 last:flex-none">
+            <div className="flex flex-col items-center gap-1.5">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-medium transition-all duration-300
+                ${i < step ? "bg-primary text-primary-foreground" :
+                  i === step ? "bg-primary text-primary-foreground ring-4 ring-primary/20" :
+                    "bg-muted text-muted-foreground"}`}>
+                {i < step ? <Check size={14} /> : i + 1}
+              </div>
+              <span className={`text-[10px] font-mono uppercase tracking-wide hidden sm:block whitespace-nowrap
+                ${i === step ? "text-primary font-medium" : "text-muted-foreground"}`}>
+                {label}
+              </span>
+            </div>
+            {i < BOOKING_STEPS.length - 1 && (
+              <div className={`flex-1 h-px mx-2 mb-5 transition-colors duration-300 ${i < step ? "bg-primary" : "bg-border"}`} />
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Step content */}
       <div className="min-h-[420px]">
-        {step === 0 && <Step1Villa form={form} onChange={update} />}
-        {step === 1 && <Step2Language form={form} onChange={update} />}
-        {step === 2 && <Step3Customer form={form} onChange={update} />}
-        {step === 3 && <Step4Booking form={form} onChange={update} />}
-        {step === 4 && (
+        {step === 0 && (
+          <Step2Language
+            form={form}
+            onChange={f => { if (f.secondaryLanguage !== undefined) setSecondaryLanguage(f.secondaryLanguage ?? null); }}
+          />
+        )}
+        {step === 1 && (
           <Step5Preview
             form={form}
-            onSend={handleSend}
+            onSend={() => setShowSuccess(true)}
             onDownload={() => {}}
             onSaveDraft={() => {}}
           />
         )}
       </div>
 
-      {/* Navigation */}
-      {step < 4 && (
+      {/* Navigation — only shown on language step */}
+      {step === 0 && (
         <div className="flex items-center justify-between mt-8 pt-5 border-t border-border">
-          <Btn onClick={() => setStep(s => Math.max(0, s - 1))} variant="ghost" disabled={step === 0}>
+          <Btn onClick={onBack} variant="ghost">
             <ArrowLeft size={14} />
             Indietro
           </Btn>
-          <Btn onClick={() => setStep(s => Math.min(4, s + 1))} variant="primary" disabled={!canNext}>
-            {step === 3 ? "Genera Contratto" : "Continua"}
+          <Btn onClick={() => setStep(1)} variant="primary">
+            Genera Contratto
             <ChevronRight size={14} />
           </Btn>
         </div>
@@ -1147,12 +1417,12 @@ function NewContractPage({ onBack }: { onBack: () => void }) {
             <p className="text-sm text-muted-foreground mb-1">
               Il contratto è stato inviato con successo a
             </p>
-            <p className="text-sm font-medium text-foreground mb-5">{form.email || "cliente@email.com"}</p>
+            <p className="text-sm font-medium text-foreground mb-5">{booking.email}</p>
             <div className="bg-muted rounded-lg p-3 mb-6 text-xs text-muted-foreground font-mono">
-              {form.firstName} {form.lastName} · {VILLAS.find(v => v.id === form.villaId)?.name}
+              {booking.firstName} {booking.lastName} · {villa?.name}
             </div>
             <Btn onClick={() => { setShowSuccess(false); onBack(); }} variant="primary" className="w-full justify-center">
-              Torna alla Dashboard
+              Torna alle Prenotazioni
             </Btn>
           </div>
         </div>
@@ -1638,273 +1908,6 @@ function ContractDetailPage({ contractId, onBack }: { contractId: string; onBack
     </div>
   );
 }
-
-// ─── Clients Page ─────────────────────────────────────────────────────────────
-
-function ClientsPage({ onViewClient }: { onViewClient: (id: string) => void }) {
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<ClientStatus | "All">("All");
-  const [page, setPage] = useState(1);
-  const PER_PAGE = 8;
-
-  const filtered = CLIENTS
-    .filter(c =>
-      (filterStatus === "All" || c.status === filterStatus) &&
-      (c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.email.toLowerCase().includes(search.toLowerCase()) ||
-        c.nationality.toLowerCase().includes(search.toLowerCase()))
-    );
-
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-
-  const STATUSES: (ClientStatus | "All")[] = ["All", "Nuovo Cliente", "Cliente Abituale", "VIP", "Storico"];
-
-  return (
-    <div className="p-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Gestione CRM</p>
-          <h1 className="text-xl font-display font-semibold text-foreground">Clienti</h1>
-        </div>
-        <span className="text-xs font-mono text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
-          {filtered.length} clienti
-        </span>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono mb-1">Totale Clienti</p>
-          <p className="text-2xl font-display font-semibold text-foreground">{CLIENTS.length}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono mb-1">VIP</p>
-          <p className="text-2xl font-display font-semibold text-foreground">{CLIENTS.filter(c => c.status === "VIP").length}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono mb-1">Abituali</p>
-          <p className="text-2xl font-display font-semibold text-foreground">{CLIENTS.filter(c => c.status === "Cliente Abituale").length}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono mb-1">Nuovi (2025)</p>
-          <p className="text-2xl font-display font-semibold text-foreground">{CLIENTS.filter(c => c.status === "Nuovo Cliente").length}</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <div className="relative flex-1 min-w-48 max-w-64">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Cerca clienti..."
-            className="w-full pl-8 pr-3 py-2 bg-input-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
-          />
-        </div>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {STATUSES.map(s => (
-            <button key={s}
-              onClick={() => { setFilterStatus(s); setPage(1); }}
-              className={`px-3 py-1.5 rounded-full text-xs font-mono border transition-all ${filterStatus === s
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-card border-border text-muted-foreground hover:border-primary/40"}`}>
-              {s === "All" ? "Tutti" : s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Cliente</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Nazionalità</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Contatti</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Ultima Villa</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Stato</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Prenotazioni</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Totale Speso</th>
-                <th className="px-5 py-3 text-left text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.length === 0 ? (
-                <tr><td colSpan={8} className="px-5 py-10 text-center text-muted-foreground text-sm">Nessun cliente trovato</td></tr>
-              ) : paginated.map(c => (
-                <tr key={c.id}
-                  className="border-b border-border/50 last:border-0 hover:bg-muted/30 cursor-pointer transition-colors"
-                  onClick={() => onViewClient(c.id)}>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-primary">{c.name.split(" ").map(n => n[0]).join("")}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{c.name}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{c.id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-base">{NATIONALITY_FLAGS[c.nationality]}</span>
-                      <span className="text-muted-foreground">{c.nationality}</span>
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div>
-                      <p className="text-xs text-foreground">{c.email}</p>
-                      <p className="text-xs text-muted-foreground font-mono mt-0.5">{c.phone}</p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{c.lastVilla}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={c.status} /></td>
-                  <td className="px-5 py-3.5 font-mono text-foreground">{c.totalBookings}</td>
-                  <td className="px-5 py-3.5 font-mono font-medium text-foreground">{c.totalSpent}</td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => onViewClient(c.id)} className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Eye size={13} /></button>
-                      <button className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Edit3 size={13} /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-            <p className="text-xs text-muted-foreground font-mono">
-              {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} di {filtered.length}
-            </p>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button key={`page-${i + 1}`}
-                  onClick={() => setPage(i + 1)}
-                  className={`w-7 h-7 rounded text-xs font-mono transition-colors ${page === i + 1
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"}`}>
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Client Detail ────────────────────────────────────────────────────────────
-
-function ClientDetailPage({ clientId, onBack }: { clientId: string; onBack: () => void }) {
-  const client = CLIENTS.find(c => c.id === clientId) ?? CLIENTS[0];
-  const clientContracts = CONTRACTS.filter(c => c.customer === client.name);
-
-  return (
-    <div className="p-6 max-w-6xl">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={onBack} className="p-2 rounded-md text-muted-foreground hover:bg-muted transition-colors">
-          <ArrowLeft size={16} />
-        </button>
-        <div className="flex-1">
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">{client.id}</p>
-          <h1 className="text-xl font-display font-semibold text-foreground">{client.name}</h1>
-        </div>
-        <StatusBadge status={client.status} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Main */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* Info */}
-          <div className="bg-card border border-border rounded-lg p-5">
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Informazioni Cliente</p>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                ["Nome Completo", client.name],
-                ["Email", client.email],
-                ["Telefono", client.phone],
-                ["Nazionalità", `${NATIONALITY_FLAGS[client.nationality]} ${client.nationality}`],
-                ["Lingua Preferita", `${LANG_FLAGS[client.preferredLanguage]} ${LANG_LABELS[client.preferredLanguage]}`],
-                ["Indirizzo", client.address || "—"],
-              ].map(([k, v]) => (
-                <div key={k}>
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">{k}</p>
-                  <p className="text-sm text-foreground font-medium">{v}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Booking History */}
-          <div className="bg-card border border-border rounded-lg p-5">
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Storico Prenotazioni</p>
-            {clientContracts.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Nessuna prenotazione registrata</p>
-            ) : (
-              <div className="space-y-3">
-                {clientContracts.map(contract => (
-                  <div key={contract.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{contract.villa}</p>
-                      <p className="text-xs text-muted-foreground font-mono mt-0.5">{contract.id} · {fmtDate(contract.date)}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <p className="font-mono text-sm font-medium text-foreground">{contract.amount}</p>
-                      <StatusBadge status={contract.status} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-5">
-          {/* Stats */}
-          <div className="bg-card border border-border rounded-lg p-5">
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">Statistiche</p>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Prenotazioni Totali</p>
-                <p className="text-2xl font-display font-semibold text-foreground mt-0.5">{client.totalBookings}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Valore Lifetime</p>
-                <p className="text-2xl font-display font-semibold text-foreground mt-0.5">{client.totalSpent}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Ultima Prenotazione</p>
-                <p className="text-sm font-mono text-foreground mt-0.5">{fmtDate(client.lastBooking)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Villa Preferita</p>
-                <p className="text-sm font-medium text-foreground mt-0.5">{client.lastVilla}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="bg-card border border-border rounded-lg p-5 space-y-2.5">
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">Azioni</p>
-            <Btn variant="primary" className="w-full justify-center"><FilePlus size={13} />Nuovo Contratto</Btn>
-            <Btn variant="outline" className="w-full justify-center"><Send size={13} />Invia Email</Btn>
-            <Btn variant="outline" className="w-full justify-center"><Edit3 size={13} />Modifica Dati</Btn>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Settings Page ────────────────────────────────────────────────────────────
 
 function SettingsPage() {
@@ -2183,75 +2186,6 @@ function SettingsPage() {
   );
 }
 
-// ─── Villas Page ──────────────────────────────────────────────────────────────
-
-function VillasPage() {
-  const [search, setSearch] = useState("");
-  const filtered = VILLAS.filter(v =>
-    v.name.toLowerCase().includes(search.toLowerCase()) ||
-    v.location.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="p-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Gestione</p>
-          <h1 className="text-xl font-display font-semibold text-foreground">Ville</h1>
-        </div>
-        <div className="relative">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Cerca villa..."
-            className="pl-8 pr-4 py-2 bg-input-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring/30 w-48"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {filtered.map(v => (
-          <div key={v.id} className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer">
-            <div className="relative h-44 bg-muted overflow-hidden">
-              <img
-                src={villaPhoto(v.photo, 500, 350)}
-                alt={v.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute top-3 right-3"><StatusBadge status={v.status} /></div>
-              <div className="absolute bottom-3 left-3 right-3">
-                <p className="font-display font-bold text-white text-base drop-shadow">{v.name}</p>
-              </div>
-            </div>
-            <div className="p-4 space-y-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><MapPin size={10} />{v.location.split(",")[0]}</span>
-                <span className="flex items-center gap-1"><Users2 size={10} />{v.guests} ospiti · {v.bedrooms} camere</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {v.languages.map(l => (
-                  <span key={l} className="text-base" title={LANG_LABELS[l]}>{LANG_FLAGS[l]}</span>
-                ))}
-                <span className="text-[10px] text-muted-foreground font-mono ml-1">Lingue contratto</span>
-              </div>
-              <div className="pt-2 border-t border-border flex gap-2">
-                <button className="flex-1 py-1.5 text-xs font-medium text-center rounded-md border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
-                  Modifica
-                </button>
-                <button className="flex-1 py-1.5 text-xs font-medium text-center rounded-md bg-primary/10 text-primary hover:bg-primary/15 transition-colors">
-                  Nuovo Contratto
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Login Page ───────────────────────────────────────────────────────────────
 
 function LoginPage({ onLogin }: { onLogin: () => void }) {
@@ -2385,12 +2319,11 @@ function AppShell({ children, page, onNav, dark, onToggleDark, onLogout, collaps
   const PAGE_TITLES: Record<Page, string> = {
     login: "",
     dashboard: "Dashboard",
-    "new-contract": "Nuovo Contratto",
+    bookings: "Prenotazioni",
+    "booking-detail": "Dettaglio Prenotazione",
+    "new-contract": "Genera Contratto",
     contracts: "Archivio Contratti",
     "contract-detail": "Dettaglio Contratto",
-    villas: "Gestione Ville",
-    clients: "Clienti",
-    "client-detail": "Dettaglio Cliente",
     settings: "Impostazioni",
   };
 
@@ -2414,7 +2347,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [selectedContract, setSelectedContract] = useState<string>("");
-  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const toggleDark = () => {
     setDark(d => {
@@ -2430,13 +2363,18 @@ export default function App() {
     setPage("contract-detail");
   };
 
-  const viewClient = (id: string) => {
-    setSelectedClient(id);
-    setPage("client-detail");
+  const handlePreview = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setPage("booking-detail");
+  };
+
+  const handleGenerateContract = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setPage("new-contract");
   };
 
   if (page === "login") {
-    return <LoginPage onLogin={() => setPage("dashboard")} />;
+    return <LoginPage onLogin={() => setPage("bookings")} />;
   }
 
   return (
@@ -2451,25 +2389,31 @@ export default function App() {
     >
       {page === "dashboard" && (
         <DashboardPage
-          onNewContract={() => setPage("new-contract")}
+          onNewContract={() => setPage("bookings")}
           onViewContract={viewContract}
         />
       )}
-      {page === "new-contract" && (
-        <NewContractPage onBack={() => setPage("dashboard")} />
+      {page === "bookings" && (
+        <BookingsPage onPreview={handlePreview} onGenerateContract={handleGenerateContract} />
+      )}
+      {page === "booking-detail" && selectedBooking && (
+        <BookingDetailPage
+          booking={selectedBooking}
+          onBack={() => setPage("bookings")}
+          onGenerateContract={booking => { setSelectedBooking(booking); setPage("new-contract"); }}
+        />
+      )}
+      {page === "new-contract" && selectedBooking && (
+        <ContractFromBookingPage
+          booking={selectedBooking}
+          onBack={() => setPage("bookings")}
+        />
       )}
       {page === "contracts" && (
         <ContractsPage onViewContract={viewContract} />
       )}
       {page === "contract-detail" && (
         <ContractDetailPage contractId={selectedContract} onBack={() => setPage("contracts")} />
-      )}
-      {page === "villas" && <VillasPage />}
-      {page === "clients" && (
-        <ClientsPage onViewClient={viewClient} />
-      )}
-      {page === "client-detail" && (
-        <ClientDetailPage clientId={selectedClient} onBack={() => setPage("clients")} />
       )}
       {page === "settings" && <SettingsPage />}
     </AppShell>
