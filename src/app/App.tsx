@@ -2374,7 +2374,7 @@ export default function App() {
   };
 
   if (page === "login") {
-    return <LoginPage onLogin={() => setPage("bookings")} />;
+    return <LoginPage onLogin={() => setPage("dashboard")} />;
   }
 
   return (
