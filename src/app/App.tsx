@@ -361,12 +361,13 @@ const NAV_ITEMS: { id: Page; label: string; icon: React.ReactNode }[] = [
   { id: "contracts", label: "Contratti", icon: <FileText size={16} /> },
 ];
 
-function Sidebar({ page, onNav, collapsed, onToggle }: {
-  page: Page; onNav: (p: Page) => void; collapsed: boolean; onToggle: () => void;
+function Sidebar({ page, onNav, collapsed, onToggle, mobileOpen }: {
+  page: Page; onNav: (p: Page) => void; collapsed: boolean; onToggle: () => void; mobileOpen: boolean;
 }) {
+  const showLabels = !collapsed || mobileOpen;
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-sidebar text-sidebar-foreground flex flex-col z-30 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+      className={`fixed top-0 left-0 h-full bg-sidebar text-sidebar-foreground flex flex-col z-30 transition-all duration-300 w-56 ${collapsed ? "md:w-16" : "md:w-56"} ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       style={{ fontFamily: "var(--font-body)" }}
     >
       {/* Logo */}
@@ -374,7 +375,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
         <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
           <span className="text-xs font-display font-bold text-primary-foreground">TR</span>
         </div>
-        {!collapsed && (
+        {showLabels && (
           <div className="min-w-0">
             <p className="text-sm font-display font-semibold text-sidebar-foreground leading-tight">Tenuta Ricrio</p>
             <p className="text-[10px] text-sidebar-foreground/50 font-mono tracking-widest uppercase">Management</p>
@@ -397,7 +398,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
                 }`}
             >
               <span className={`flex-shrink-0 ${active ? "text-primary" : ""}`}>{item.icon}</span>
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              {showLabels && <span className="truncate">{item.label}</span>}
             </button>
           );
         })}
@@ -412,7 +413,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
               }`}
           >
             <Settings size={16} className="flex-shrink-0" />
-            {!collapsed && <span>Impostazioni</span>}
+            {showLabels && <span>Impostazioni</span>}
           </button>
         </div>
       </nav>
@@ -422,7 +423,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
         <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center flex-shrink-0">
           <span className="text-xs font-medium text-primary-foreground">LC</span>
         </div>
-        {!collapsed && (
+        {showLabels && (
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-sidebar-foreground truncate">Paola</p>
             <p className="text-[10px] text-sidebar-foreground/40 truncate">Admin</p>
@@ -430,7 +431,7 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
         )}
         <button
           onClick={onToggle}
-          className="p-1.5 rounded text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors flex-shrink-0"
+          className="p-1.5 rounded text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors flex-shrink-0 hidden md:flex"
         >
           <Menu size={14} />
         </button>
@@ -441,8 +442,8 @@ function Sidebar({ page, onNav, collapsed, onToggle }: {
 
 // ─── Top Bar ─────────────────────────────────────────────────────────────────
 
-function TopBar({ title, dark, onToggleDark, onLogout }: {
-  title: string; dark: boolean; onToggleDark: () => void; onLogout: () => void;
+function TopBar({ title, dark, onToggleDark, onLogout, onMobileMenuToggle }: {
+  title: string; dark: boolean; onToggleDark: () => void; onLogout: () => void; onMobileMenuToggle: () => void;
 }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -457,8 +458,16 @@ function TopBar({ title, dark, onToggleDark, onLogout }: {
   }, []);
 
   return (
-    <header className="h-14 bg-card border-b border-border flex items-center justify-between px-6 gap-4 flex-shrink-0">
-      <h1 className="text-lg font-display font-semibold text-foreground truncate">{title}</h1>
+    <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 gap-3 flex-shrink-0">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={onMobileMenuToggle}
+          className="md:hidden p-2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex-shrink-0"
+        >
+          <Menu size={18} />
+        </button>
+        <h1 className="text-base md:text-lg font-display font-semibold text-foreground truncate">{title}</h1>
+      </div>
       <div className="flex items-center gap-2">
         {/* Lang */}
         <div className="relative">
