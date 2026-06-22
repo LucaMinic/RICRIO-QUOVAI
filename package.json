@@ -1,5 +1,5 @@
 {
-  "homepage": "https://lucaminic.github.io/ricrio-quovai",
+  "homepage": "https://LucaMinic.github.io/RICRIO-QUOVAI",
   "name": "@figma/my-make-file",
   "private": true,
   "version": "0.0.1",
@@ -7,7 +7,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite","predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+  "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
